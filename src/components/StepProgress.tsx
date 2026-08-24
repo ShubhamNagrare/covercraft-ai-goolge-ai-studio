@@ -4,7 +4,7 @@ import {
   LayoutGrid,
   Sparkles,
   Check,
-  Zap,
+  ChevronRight,
 } from 'lucide-react';
 
 interface StepProgressProps {
@@ -26,21 +26,21 @@ export const StepProgress: React.FC<StepProgressProps> = ({
     {
       step: 1,
       title: 'Profile & Match',
-      subtitle: 'Resume + JD Analysis',
+      subtitle: 'Resume + Job Match',
       icon: FileText,
       isCompleted: hasResume && hasJD,
     },
     {
       step: 2,
-      title: 'Templates',
-      subtitle: '25+ Styles & Tone',
+      title: 'Templates & Tone',
+      subtitle: 'Style & Strategy',
       icon: LayoutGrid,
-      isCompleted: true,
+      isCompleted: currentStep > 2 || hasCoverLetter,
     },
     {
       step: 3,
       title: 'Studio & Export',
-      subtitle: 'PDF, DOCX & Print',
+      subtitle: 'PDF, DOCX & AI Tools',
       icon: Sparkles,
       isCompleted: hasCoverLetter,
     },
@@ -49,11 +49,11 @@ export const StepProgress: React.FC<StepProgressProps> = ({
   return (
     <div
       id="app-stepper"
-      className="w-full bg-zinc-50/80 dark:bg-zinc-900/40 border-b border-zinc-200/80 dark:border-zinc-800/80 py-2.5 px-4 sm:px-6 print:hidden"
+      className="w-full bg-slate-50/90 dark:bg-zinc-900/60 border-b border-slate-200/90 dark:border-zinc-800 py-3 px-4 sm:px-6 print:hidden shadow-xs"
     >
       <div className="max-w-7xl mx-auto">
         <nav aria-label="Progress" className="w-full">
-          <ol className="grid grid-cols-3 gap-2 sm:gap-4">
+          <ol className="grid grid-cols-3 gap-2.5 sm:gap-4">
             {steps.map((item) => {
               const Icon = item.icon;
               const isActive = currentStep === item.step;
@@ -69,48 +69,78 @@ export const StepProgress: React.FC<StepProgressProps> = ({
                     onClick={() => isClickable && onSelectStep(item.step)}
                     disabled={!isClickable}
                     id={`step-indicator-${item.step}`}
-                    className={`w-full flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl text-left transition-all ${
+                    className={`w-full flex items-center gap-2.5 sm:gap-3.5 p-2.5 sm:p-3.5 rounded-2xl text-left transition-all duration-200 ${
                       isActive
-                        ? 'bg-white dark:bg-zinc-800 shadow-sm border border-indigo-200 dark:border-indigo-800/80'
+                        ? 'bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-700 text-white shadow-lg shadow-indigo-500/25 ring-2 ring-indigo-400 dark:ring-indigo-500 border border-indigo-400/50 scale-[1.01]'
+                        : isPast
+                        ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-300/80 dark:border-emerald-700/60 text-emerald-900 dark:text-emerald-200 hover:bg-emerald-100/90 dark:hover:bg-emerald-900/40 cursor-pointer shadow-xs'
                         : isClickable
-                        ? 'hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50 cursor-pointer opacity-90'
-                        : 'opacity-40 cursor-not-allowed'
+                        ? 'bg-white dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer shadow-xs'
+                        : 'bg-zinc-100/70 dark:bg-zinc-900/40 border border-zinc-200/60 dark:border-zinc-800/60 opacity-50 cursor-not-allowed text-zinc-500'
                     }`}
                   >
+                    {/* Icon Badge */}
                     <div
-                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-xs font-bold transition-all shrink-0 ${
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-xs font-bold transition-all shrink-0 ${
                         isActive
-                          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25 ring-2 ring-indigo-300 dark:ring-indigo-700'
+                          ? 'bg-white/20 text-white backdrop-blur-xs ring-1 ring-white/40 shadow-xs'
                           : isPast
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300'
                       }`}
                     >
                       {isPast && !isActive ? (
-                        <Check className="w-4 h-4" />
+                        <Check className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
                       ) : (
-                        <Icon className="w-4 h-4" />
+                        <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                       )}
                     </div>
-                    <div className="truncate min-w-0">
+
+                    {/* Step Content */}
+                    <div className="truncate min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                        <span
+                          className={`text-[10px] font-extrabold uppercase tracking-wider ${
+                            isActive
+                              ? 'text-indigo-100'
+                              : isPast
+                              ? 'text-emerald-700 dark:text-emerald-400'
+                              : 'text-zinc-500 dark:text-zinc-400'
+                          }`}
+                        >
                           Step 0{item.step}
                         </span>
                         {isActive && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
+                          <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-white/20 text-white ring-1 ring-white/30 backdrop-blur-xs">
+                            Active
+                          </span>
+                        )}
+                        {isPast && !isActive && (
+                          <span className="text-[9px] font-bold uppercase px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-900/80 text-emerald-800 dark:text-emerald-300 hidden sm:inline-block">
+                            Done
+                          </span>
                         )}
                       </div>
                       <p
-                        className={`text-xs sm:text-sm font-bold truncate ${
+                        className={`text-xs sm:text-sm font-bold truncate mt-0.5 ${
                           isActive
-                            ? 'text-indigo-600 dark:text-indigo-400'
+                            ? 'text-white font-black'
+                            : isPast
+                            ? 'text-emerald-950 dark:text-emerald-100'
                             : 'text-zinc-800 dark:text-zinc-200'
                         }`}
                       >
                         {item.title}
                       </p>
-                      <p className="text-[11px] text-zinc-500 truncate hidden sm:block">
+                      <p
+                        className={`text-[11px] truncate hidden sm:block ${
+                          isActive
+                            ? 'text-indigo-100/90'
+                            : isPast
+                            ? 'text-emerald-700/90 dark:text-emerald-400/90'
+                            : 'text-zinc-500 dark:text-zinc-400'
+                        }`}
+                      >
                         {item.subtitle}
                       </p>
                     </div>
@@ -124,3 +154,4 @@ export const StepProgress: React.FC<StepProgressProps> = ({
     </div>
   );
 };
+

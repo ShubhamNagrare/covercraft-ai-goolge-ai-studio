@@ -103,7 +103,11 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
   const handleDownloadPdf = () => {
     setIsExporting('pdf');
     try {
-      exportToPdf(coverLetter, candidateDetails, companyDetails);
+      exportToPdf(coverLetter, candidateDetails, companyDetails, {
+        fontFamily,
+        visualTheme,
+        fontSize,
+      });
       fireConfetti();
     } catch (e) {
       console.error('PDF export error', e);
@@ -115,7 +119,11 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
   const handleDownloadDocx = async () => {
     setIsExporting('docx');
     try {
-      await exportToDocx(coverLetter, candidateDetails, companyDetails);
+      await exportToDocx(coverLetter, candidateDetails, companyDetails, {
+        fontFamily,
+        visualTheme,
+        fontSize,
+      });
       fireConfetti();
     } catch (e) {
       console.error('DOCX export error', e);
@@ -560,8 +568,25 @@ export const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({
           {/* Dedicated Clean Printable Area (Hidden on screen, Visible on Print) */}
           <div
             id="cover-letter-printable-area"
-            className="hidden print:block font-sans text-[11pt] leading-relaxed text-zinc-900 space-y-6"
+            className={`hidden print:block ${getFontClass()} ${getSizeClass()} text-[11pt] leading-relaxed text-zinc-900 space-y-6 pt-2`}
           >
+            {/* Top theme accent line */}
+            <div className={`h-1.5 w-full rounded-full ${
+              visualTheme === 'executive-navy'
+                ? 'bg-slate-800'
+                : visualTheme === 'emerald-growth'
+                ? 'bg-emerald-600'
+                : visualTheme === 'crimson-bold'
+                ? 'bg-rose-600'
+                : visualTheme === 'slate-elegant'
+                ? 'bg-slate-600'
+                : visualTheme === 'amber-warm'
+                ? 'bg-amber-600'
+                : visualTheme === 'minimal-monochrome'
+                ? 'bg-zinc-900'
+                : 'bg-indigo-600'
+            }`} />
+
             <div className="border-b border-zinc-300 pb-3 space-y-1">
               <h1 className="text-2xl font-bold tracking-tight text-zinc-900">
                 {candidateDetails.name || coverLetter.candidateName || 'Applicant Name'}

@@ -1,28 +1,46 @@
 import express from "express";
 import path from "path";
-import { fileURLToPath } from "url";
-import { createRequire } from "module";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import { createServer as createViteServer } from "vite";
 import multer from "multer";
 import mammoth from "mammoth";
-
-const require = createRequire(import.meta.url);
+import * as pdfParseModule from "pdf-parse";
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
+
+// Health check endpoint for Cloud Run container probes
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", service: "CoverCraft.ai", timestamp: new Date().toISOString() });
+});
 
 // Helper to reliably extract text from PDF buffers across different pdf-parse versions
 async function extractPdfText(buffer: Buffer): Promise<string> {
-  // Method 1: pdf-parse v2+ Class API
+  const pdfModule: any = pdfParseModule;
+
+  // Method 1: Functional default or module export
   try {
-    const pdfModule = require("pdf-parse");
+    if (typeof pdfModule === "function") {
+      const result = await pdfModule(buffer);
+      if (result && result.text && result.text.trim()) {
+        return result.text;
+      }
+    }
+    if (typeof pdfModule?.default === "function") {
+      const result = await pdfModule.default(buffer);
+      if (result && result.text && result.text.trim()) {
+        return result.text;
+      }
+    }
+  } catch (err) {
+    console.warn("PDF functional extraction attempt failed:", err);
+  }
+
+  // Method 2: Class API
+  try {
     const PDFParseClass = pdfModule.PDFParse || pdfModule.default?.PDFParse;
     if (PDFParseClass) {
       const parser = new PDFParseClass({ data: new Uint8Array(buffer) });
@@ -36,21 +54,7 @@ async function extractPdfText(buffer: Buffer): Promise<string> {
       }
     }
   } catch (err) {
-    console.warn("pdf-parse v2 class extraction attempt failed, trying fallback:", err);
-  }
-
-  // Method 2: pdf-parse v1 Functional API / Default export
-  try {
-    const pdfModule = require("pdf-parse");
-    const parseFn = typeof pdfModule === "function" ? pdfModule : pdfModule.default;
-    if (typeof parseFn === "function") {
-      const result = await parseFn(buffer);
-      if (result && result.text) {
-        return result.text;
-      }
-    }
-  } catch (err) {
-    console.warn("pdf-parse functional extraction attempt failed:", err);
+    console.warn("PDF class extraction attempt failed:", err);
   }
 
   throw new Error("Unable to extract text from the PDF file. The file may be password-protected or image-only scanned.");

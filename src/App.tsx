@@ -44,46 +44,36 @@ export default function App() {
   // Stepper state (1: Profile & Job Match, 2: Template & Tone Catalog, 3: Studio & Instant Export)
   const [currentStep, setCurrentStep] = useState<number>(1);
 
-  // Resume Data State
-  const [resumeText, setResumeText] = useState<string>(() => storage.getLastResume());
-  const [candidateDetails, setCandidateDetails] = useState<CandidateDetails>(() => {
-    return (
-      storage.getCandidate() || {
-        name: '',
-        email: '',
-        phone: '',
-        location: '',
-        links: '',
-        linkedin: '',
-        github: '',
-        portfolio: '',
-        leetcode: '',
-        medium: '',
-        currentRole: '',
-        yearsOfExp: '',
-        recipientTo: 'Hiring Manager',
-        includeSignature: true,
-        includeDate: true,
-        customDraftCommand: '',
-      }
-    );
+  // Resume Data State (Clean and free by default)
+  const [resumeText, setResumeText] = useState<string>('');
+  const [candidateDetails, setCandidateDetails] = useState<CandidateDetails>({
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
+    links: '',
+    linkedin: '',
+    github: '',
+    portfolio: '',
+    leetcode: '',
+    medium: '',
+    currentRole: '',
+    yearsOfExp: '',
+    recipientTo: '',
+    includeSignature: true,
+    includeDate: true,
+    customDraftCommand: '',
   });
   const [parsedResume, setParsedResume] = useState<ParsedResumeData | null>(null);
 
-  // Job Description State
-  const [jobDescriptionText, setJobDescriptionText] = useState<string>(() =>
-    storage.getLastJD()
-  );
-  const [companyDetails, setCompanyDetails] = useState<CompanyDetails>(() => {
-    return (
-      storage.getCompany() || {
-        jobTitle: '',
-        companyName: '',
-        recipientName: 'Hiring Team',
-        recipientTitle: 'Hiring Manager',
-        department: '',
-      }
-    );
+  // Job Description State (Clean and free by default)
+  const [jobDescriptionText, setJobDescriptionText] = useState<string>('');
+  const [companyDetails, setCompanyDetails] = useState<CompanyDetails>({
+    jobTitle: '',
+    companyName: '',
+    recipientName: '',
+    recipientTitle: '',
+    department: '',
   });
   const [matchResult, setMatchResult] = useState<MatchAnalysisResult | null>(null);
 

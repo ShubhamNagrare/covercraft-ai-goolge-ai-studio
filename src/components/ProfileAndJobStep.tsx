@@ -33,7 +33,6 @@ import {
   CompanyDetails,
   MatchAnalysisResult,
 } from '../types';
-import { SAMPLE_PROFILES } from '../data/samples';
 import { parseUploadedFile } from '../utils/fileParsers';
 
 interface ProfileAndJobStepProps {
@@ -139,7 +138,7 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
       // Auto update candidate details
       onChangeCandidateDetails({
         ...candidateDetails,
-        name: data.candidateName || candidateDetails.name || 'Candidate Name',
+        name: data.candidateName || candidateDetails.name || '',
         email: data.email || candidateDetails.email || '',
         phone: data.phone || candidateDetails.phone || '',
         location: data.location || candidateDetails.location || '',
@@ -202,8 +201,8 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
       onChangeCompanyDetails({
         jobTitle: companyDetails.jobTitle || result.targetJobTitle || '',
         companyName: companyDetails.companyName || result.targetCompany || '',
-        recipientName: companyDetails.recipientName || 'Hiring Team',
-        recipientTitle: companyDetails.recipientTitle || 'Hiring Manager',
+        recipientName: companyDetails.recipientName || '',
+        recipientTitle: companyDetails.recipientTitle || '',
         department: companyDetails.department || '',
       });
 
@@ -215,43 +214,6 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
     } finally {
       setIsAnalyzingMatch(false);
     }
-  };
-
-  // Load Preset Profile
-  const loadPresetProfile = (sampleId: string) => {
-    const profile = SAMPLE_PROFILES.find((p) => p.id === sampleId);
-    if (!profile) return;
-
-    onChangeResumeText(profile.resumeText);
-    setResumeFileName(`Sample - ${profile.candidateName}.pdf`);
-
-    onChangeCandidateDetails({
-      ...candidateDetails,
-      name: profile.candidateName,
-      email: profile.email,
-      phone: profile.phone,
-      location: profile.location,
-      links: profile.links,
-      linkedin: profile.links.includes('linkedin') ? profile.links : 'https://linkedin.com/in/sample-profile',
-      github: profile.links.includes('github') ? profile.links : 'https://github.com/sample-dev',
-      portfolio: 'https://sample-portfolio.dev',
-      leetcode: 'https://leetcode.com/sample_coder',
-      medium: 'https://medium.com/@sample_writer',
-      currentRole: profile.title,
-    });
-
-    onChangeJobDescriptionText(profile.sampleJob.jobDescriptionText);
-    setJdFileName(`Sample Job - ${profile.sampleJob.companyName}.pdf`);
-
-    onChangeCompanyDetails({
-      jobTitle: profile.sampleJob.jobTitle,
-      companyName: profile.sampleJob.companyName,
-      recipientName: profile.sampleJob.recipientName,
-      recipientTitle: 'Hiring Manager',
-    });
-
-    triggerResumeAiExtraction(profile.resumeText);
-    triggerMatchAnalysis(profile.resumeText, profile.sampleJob.jobDescriptionText);
   };
 
   // Safe ATS score fallback
@@ -335,23 +297,6 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
         </div>
       </div>
 
-      {/* Quick Sample Presets Banner */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs no-scrollbar">
-        <span className="font-bold text-zinc-400 text-[11px] uppercase tracking-wider shrink-0 flex items-center gap-1">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-          Try Sample Preset:
-        </span>
-        {SAMPLE_PROFILES.map((sample) => (
-          <button
-            key={sample.id}
-            onClick={() => loadPresetProfile(sample.id)}
-            className="px-3 py-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 hover:bg-indigo-50 dark:hover:bg-indigo-950/70 text-zinc-700 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 border border-zinc-200/80 dark:border-zinc-700/80 text-xs font-semibold whitespace-nowrap transition-colors"
-          >
-            {sample.candidateName} • {sample.title}
-          </button>
-        ))}
-      </div>
-
       {/* Error notification banner */}
       {errorMessage && (
         <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
@@ -360,31 +305,31 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
         </div>
       )}
 
-      {/* Main Two-Column Side-by-Side Studio Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Main Two-Column Balanced Side-by-Side Layout (Strict 50/50 Equal Width) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
         {/* ========================================================
-            LEFT COLUMN: Resume Intake, ATS Score & Candidate Contact (5 cols)
+            LEFT COLUMN: Add Resume & Candidate Details (50% Width)
             ======================================================== */}
-        <div className="lg:col-span-5 space-y-5">
-          {/* Resume Upload & Knowledge Box (Compact, zero tabs) */}
-          <div className="p-5 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-sm space-y-4">
+        <div className="space-y-5">
+          {/* Resume Upload & Knowledge Box (Clean & Free) */}
+          <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
                   <FileText className="w-4 h-4" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
-                    Applicant Resume
+                    Add Resume
                   </h3>
                   <p className="text-[11px] text-zinc-500">
-                    PDF, DOCX, or direct text
+                    PDF, DOCX, or direct paste
                   </p>
                 </div>
               </div>
 
               {hasResume && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
                   <Check className="w-3 h-3" />
                   {resumeWordCount} words
                 </span>
@@ -392,7 +337,7 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
             </div>
 
             {/* Resume Intake Zone */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <input
                 ref={resumeFileInputRef}
                 type="file"
@@ -402,7 +347,7 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
                 id="resume-file-input"
               />
 
-              {/* Upload Drop Button */}
+              {/* Upload / Browse Drop Button */}
               <div
                 onClick={() => resumeFileInputRef.current?.click()}
                 className="p-4 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 hover:border-indigo-400 dark:hover:border-indigo-600 bg-zinc-50/60 dark:bg-zinc-950/60 cursor-pointer text-center space-y-1.5 transition-colors group"
@@ -411,10 +356,10 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
                   <UploadCloud className="w-4 h-4" />
                 </div>
                 <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
-                  {resumeFileName ? resumeFileName : 'Click to Upload Resume (PDF / DOCX)'}
+                  {resumeFileName ? resumeFileName : 'Browse & Upload Resume (PDF / DOCX)'}
                 </p>
                 <p className="text-[10px] text-zinc-400">
-                  Auto-extracts skills, achievements &amp; social profiles
+                  Auto-detects work history, quantified impact, and skills
                 </p>
               </div>
 
@@ -428,9 +373,9 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
                   }
                 }}
                 id="resume-text-input"
-                placeholder="Or paste your resume text directly here..."
-                rows={4}
-                className="w-full p-3 text-xs rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:ring-2 focus:ring-indigo-500 outline-none resize-y font-mono"
+                placeholder="Or paste your complete resume text directly here..."
+                rows={6}
+                className="w-full p-3.5 text-xs rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:ring-2 focus:ring-indigo-500 outline-none resize-y font-mono leading-relaxed"
               />
             </div>
 
@@ -455,57 +400,8 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
             ) : null}
           </div>
 
-          {/* ATS Resume Score & 4-5 Short Actionable Improvements */}
-          <div className="p-5 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-sm space-y-3.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
-                  <Target className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
-                    ATS Resume Score
-                  </h3>
-                  <p className="text-[11px] text-zinc-500">
-                    Industry recruiter keyword alignment
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <span className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">
-                  {hasResume ? `${atsScore}` : '--'}
-                </span>
-                <span className="text-xs text-zinc-400 font-bold">/100</span>
-              </div>
-            </div>
-
-            {/* Score Bar */}
-            <div className="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500"
-                style={{ width: `${hasResume ? atsScore : 10}%` }}
-              />
-            </div>
-
-            {/* 4-5 Line Short ATS Improvements */}
-            <div className="space-y-1.5 pt-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
-                Targeted ATS Optimizations:
-              </span>
-              <ul className="space-y-1 text-[11px] text-zinc-600 dark:text-zinc-300">
-                {atsImprovements.slice(0, 4).map((imp, idx) => (
-                  <li key={idx} className="flex items-start gap-1.5 leading-snug">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0 mt-1.5" />
-                    <span>{imp}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Applicant Contact & Custom Recipient TO Section */}
-          <div className="p-5 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-sm space-y-4">
+          {/* Applicant Contact & Recipient Section */}
+          <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4">
             <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
               <User className="w-4 h-4 text-indigo-500" />
               Applicant &amp; Addressee Details
@@ -578,24 +474,24 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
             </div>
 
             {/* Letter Addressed TO Section */}
-            <div className="p-3.5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/60 space-y-2">
+            <div className="p-3.5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/60 space-y-1.5">
               <label className="text-[10px] uppercase font-bold text-indigo-700 dark:text-indigo-300 flex items-center justify-between">
                 <span>Letter Addressed &quot;TO&quot; (Recipient):</span>
-                <span className="text-[9px] font-normal text-indigo-500">Defaults to Hiring Manager</span>
+                <span className="text-[9px] font-normal text-indigo-500">Optional</span>
               </label>
               <input
                 type="text"
-                value={candidateDetails.recipientTo || 'Hiring Manager'}
+                value={candidateDetails.recipientTo || ''}
                 onChange={(e) =>
                   onChangeCandidateDetails({ ...candidateDetails, recipientTo: e.target.value })
                 }
                 id="input-letter-to"
                 placeholder="e.g. Hiring Manager, Engineering Director, Talent Acquisition Team"
-                className="w-full px-3 py-2 text-xs font-semibold rounded-xl border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full px-3 py-2 text-xs font-medium rounded-xl border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-indigo-500 outline-none"
               />
             </div>
 
-            {/* Toggles: Date & Signature (Checked by default, easily uncheckable) */}
+            {/* Toggles: Date & Signature */}
             <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/80 flex flex-wrap items-center justify-between gap-3">
               <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-zinc-700 dark:text-zinc-300">
                 <input
@@ -632,10 +528,10 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
               </label>
             </div>
 
-            {/* Separate Social Links (LinkedIn, Portfolio, GitHub, LeetCode, Medium) */}
+            {/* Professional Profiles */}
             <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-2.5">
               <h4 className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                Professional &amp; Coding Portfolios
+                Online Links &amp; Profiles (Optional)
               </h4>
 
               {/* LinkedIn */}
@@ -688,74 +584,69 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
                   className="w-full px-2.5 py-1.5 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
-
-              {/* LeetCode (Active if found, else greyed out with click-to-activate) */}
-              <div
-                className={`flex items-center gap-2 transition-opacity ${
-                  candidateDetails.leetcode || showLeetcodeCustom ? 'opacity-100' : 'opacity-60 hover:opacity-100'
-                }`}
-              >
-                <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                    candidateDetails.leetcode
-                      ? 'bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400'
-                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'
-                  }`}
-                >
-                  <Code2 className="w-3.5 h-3.5" />
-                </div>
-                <input
-                  type="text"
-                  value={candidateDetails.leetcode || ''}
-                  onFocus={() => setShowLeetcodeCustom(true)}
-                  onChange={(e) =>
-                    onChangeCandidateDetails({ ...candidateDetails, leetcode: e.target.value })
-                  }
-                  id="input-leetcode-url"
-                  placeholder="LeetCode profile (optional)"
-                  className="w-full px-2.5 py-1.5 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-              </div>
-
-              {/* Medium (Active if found, else greyed out with click-to-activate) */}
-              <div
-                className={`flex items-center gap-2 transition-opacity ${
-                  candidateDetails.medium || showMediumCustom ? 'opacity-100' : 'opacity-60 hover:opacity-100'
-                }`}
-              >
-                <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                    candidateDetails.medium
-                      ? 'bg-purple-50 dark:bg-purple-950/80 text-purple-600 dark:text-purple-400'
-                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'
-                  }`}
-                >
-                  <BookOpen className="w-3.5 h-3.5" />
-                </div>
-                <input
-                  type="text"
-                  value={candidateDetails.medium || ''}
-                  onFocus={() => setShowMediumCustom(true)}
-                  onChange={(e) =>
-                    onChangeCandidateDetails({ ...candidateDetails, medium: e.target.value })
-                  }
-                  id="input-medium-url"
-                  placeholder="Medium / Technical Blog profile (optional)"
-                  className="w-full px-2.5 py-1.5 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-              </div>
             </div>
           </div>
+
+          {/* ATS Resume Score Card (Shown when resume exists) */}
+          {hasResume && (
+            <div className="p-5 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-3.5 animate-fadeIn">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                    <Target className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-zinc-900 dark:text-white">
+                      ATS Resume Score
+                    </h3>
+                    <p className="text-[11px] text-zinc-500">
+                      Keyword &amp; formatting alignment
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {atsScore}
+                  </span>
+                  <span className="text-xs text-zinc-400 font-bold">/100</span>
+                </div>
+              </div>
+
+              {/* Score Bar */}
+              <div className="w-full h-2 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500"
+                  style={{ width: `${atsScore}%` }}
+                />
+              </div>
+
+              {/* Short ATS Optimizations */}
+              <div className="space-y-1.5 pt-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
+                  ATS Recommendations:
+                </span>
+                <ul className="space-y-1 text-[11px] text-zinc-600 dark:text-zinc-300">
+                  {atsImprovements.slice(0, 3).map((imp, idx) => (
+                    <li key={idx} className="flex items-start gap-1.5 leading-snug">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0 mt-1.5" />
+                      <span>{imp}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ========================================================
-            RIGHT COLUMN: Target JD, Directives & Real-time Matching (7 cols)
+            RIGHT COLUMN: Target Job Opportunity & Directives (50% Width)
             ======================================================== */}
-        <div className="lg:col-span-7 space-y-5">
-          {/* Target Role & Job Posting Section (Zero tabs) */}
-          <div className="p-5 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-sm space-y-4">
+        <div className="space-y-5">
+          {/* Target Job Opportunity Card */}
+          <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
                   <Briefcase className="w-4 h-4" />
                 </div>
@@ -764,30 +655,17 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
                     Target Job Opportunity
                   </h3>
                   <p className="text-[11px] text-zinc-500">
-                    Paste posting text or attach JD file
+                    PDF, DOCX, or direct paste
                   </p>
                 </div>
               </div>
 
-              {/* Upload Paperclip Button */}
-              <input
-                ref={jdFileInputRef}
-                type="file"
-                accept=".pdf,.docx,.txt"
-                onChange={(e) => e.target.files?.[0] && handleJdUpload(e.target.files[0])}
-                className="hidden"
-                id="jd-file-input"
-              />
-
-              <button
-                onClick={() => jdFileInputRef.current?.click()}
-                title="Attach JD document"
-                id="btn-upload-jd-file"
-                className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5 transition-colors"
-              >
-                <Paperclip className="w-3.5 h-3.5 text-indigo-500" />
-                <span>{jdFileName ? jdFileName.slice(0, 18) + '...' : 'Attach File'}</span>
-              </button>
+              {hasJD && (
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  {jdWordCount} words
+                </span>
+              )}
             </div>
 
             {/* Target Job Title & Target Company Fields */}
@@ -803,14 +681,14 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
                     onChangeCompanyDetails({ ...companyDetails, jobTitle: e.target.value })
                   }
                   id="input-job-title"
-                  placeholder="e.g. Senior Frontend Engineer"
+                  placeholder="e.g. Senior Software Engineer"
                   className="w-full px-3 py-2 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 focus:ring-2 focus:ring-indigo-500 outline-none"
                 />
               </div>
 
               <div>
                 <label className="text-[10px] uppercase font-bold text-zinc-400 block mb-1">
-                  Target Company / Organization:
+                  Target Company / Org:
                 </label>
                 <input
                   type="text"
@@ -819,18 +697,40 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
                     onChangeCompanyDetails({ ...companyDetails, companyName: e.target.value })
                   }
                   id="input-company-name"
-                  placeholder="e.g. Stripe, Linear, Google"
+                  placeholder="e.g. Stripe, Apple, Linear"
                   className="w-full px-3 py-2 text-xs rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 focus:ring-2 focus:ring-indigo-500 outline-none"
                 />
               </div>
             </div>
 
-            {/* Direct Job Description Text Input */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] uppercase font-bold text-zinc-400 flex items-center justify-between">
-                <span>Job Description &amp; Core Responsibilities:</span>
-                {hasJD && <span className="font-mono text-zinc-500">{jdWordCount} words</span>}
-              </label>
+            {/* JD Intake Zone */}
+            <div className="space-y-2.5">
+              <input
+                ref={jdFileInputRef}
+                type="file"
+                accept=".pdf,.docx,.txt"
+                onChange={(e) => e.target.files?.[0] && handleJdUpload(e.target.files[0])}
+                className="hidden"
+                id="jd-file-input"
+              />
+
+              {/* Upload / Browse Drop Button for JD */}
+              <div
+                onClick={() => jdFileInputRef.current?.click()}
+                className="p-4 rounded-2xl border-2 border-dashed border-zinc-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-600 bg-zinc-50/60 dark:bg-zinc-950/60 cursor-pointer text-center space-y-1.5 transition-colors group"
+              >
+                <div className="w-8 h-8 mx-auto rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-500 group-hover:text-blue-600 transition-colors shadow-2xs">
+                  <UploadCloud className="w-4 h-4" />
+                </div>
+                <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                  {jdFileName ? jdFileName : 'Browse & Upload Job Description (PDF / DOCX)'}
+                </p>
+                <p className="text-[10px] text-zinc-400">
+                  Auto-extracts role responsibilities &amp; skill requirements
+                </p>
+              </div>
+
+              {/* Textarea for pasting JD */}
               <textarea
                 value={jobDescriptionText}
                 onChange={(e) => {
@@ -840,15 +740,15 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
                   }
                 }}
                 id="job-description-text-input"
-                placeholder="Paste the target job description requirements, qualifications, and role responsibilities here..."
-                rows={9}
-                className="w-full p-3.5 text-xs rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/60 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:ring-2 focus:ring-indigo-500 outline-none resize-y leading-relaxed font-sans"
+                placeholder="Or paste the target job description, responsibilities, and requirements directly here..."
+                rows={6}
+                className="w-full p-3.5 text-xs rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:ring-2 focus:ring-indigo-500 outline-none resize-y font-sans leading-relaxed"
               />
             </div>
           </div>
 
-          {/* Custom Drafting Directives & Guardrails (100 words max) */}
-          <div className="p-5 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-sm space-y-3">
+          {/* Custom Drafting Directives (Clean, free, max 100 words) */}
+          <div className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/80 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
@@ -859,7 +759,7 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
                     Custom Drafting Directives
                   </h3>
                   <p className="text-[11px] text-zinc-500">
-                    Specific emphasis or nuances (Max 100 words)
+                    Optional emphasis or nuances (Max 100 words)
                   </p>
                 </div>
               </div>
@@ -889,15 +789,15 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
               }}
               id="custom-draft-command-input"
               rows={3}
-              placeholder="e.g. Focus on my experience with distributed systems, mention enthusiasm for their open source contributions, and keep tone concise."
+              placeholder="e.g. Focus on my experience with cloud architectures, mention enthusiasm for their product, and keep tone concise."
               className="w-full p-3 text-xs rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed"
             />
             <p className="text-[10px] text-zinc-400">
-              * Guardrails active: Prompt injection prevention and verified resume ground-truth enforcement.
+              * Ground-truth enforcement active: AI stays anchored strictly to your provided resume facts.
             </p>
           </div>
 
-          {/* Instant Match Analysis Card */}
+          {/* Instant Match Analysis Card (Shown when matchResult exists) */}
           {matchResult && (
             <div className="p-5 rounded-3xl bg-indigo-50/40 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/60 space-y-3.5 animate-fadeIn">
               <div className="flex items-center justify-between">
@@ -915,7 +815,7 @@ export const ProfileAndJobStep: React.FC<ProfileAndJobStepProps> = ({
               {/* Matching Skills */}
               <div className="space-y-1">
                 <span className="text-[10px] font-bold uppercase text-zinc-400 block">
-                  Top Verified Overlapping Skills:
+                  Top Overlapping Verified Skills:
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {matchResult.matchingSkills?.slice(0, 6).map((skill, idx) => (
