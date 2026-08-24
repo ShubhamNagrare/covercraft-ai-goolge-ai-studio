@@ -1,0 +1,6 @@
+{
+  "name": "CoverCraft.ai",
+  "description": "Precision AI cover letter studio and ATS optimizer. Built with grounded AI craftsmanship, 25+ industry templates, live formatting, and instant PDF/DOCX exports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
